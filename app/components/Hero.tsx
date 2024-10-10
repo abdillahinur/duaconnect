@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Button } from './ui/button'; // Assuming the button component is correctly imported
+import { Button } from './ui/button';
 
 export default function Hero() {
   return (
@@ -16,7 +16,7 @@ export default function Hero() {
               Share your duas, support others, and strengthen your faith with our global Muslim community.
             </p>
           </div>
-
+          
           {/* Hero Buttons Section */}
           <div className="space-x-4">
             {/* Primary Button to navigate to Dua Board */}
@@ -25,11 +25,13 @@ export default function Hero() {
                 Go to Dua Board
               </Button>
             </Link>
-
-            {/* Secondary Button (Outlined) */}
-            <Button variant="outline" className="border border-green-600 text-green-600 hover:bg-green-50">
-              Learn More
-            </Button>
+            
+            {/* Secondary Button (Outlined) - Learn More */}
+            <Link href="/about">
+              <Button variant="outline" className="border border-green-600 text-green-600 hover:bg-green-50">
+                Learn More
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

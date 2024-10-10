@@ -16,21 +16,34 @@ interface Dua {
 }
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+let supabase: any = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  console.error('Supabase URL or Anon Key is missing');
+}
 
 export default function DuaBoard() {
   const [duas, setDuas] = useState<Dua[]>([]);
   const [newDua, setNewDua] = useState("");
   const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDuas();
   }, []);
 
   const fetchDuas = async () => {
+    if (!supabase) {
+      setError('Supabase client is not initialized. Check your environment variables.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('duas')
       .select('*')
@@ -38,6 +51,7 @@ export default function DuaBoard() {
 
     if (error) {
       console.error('Error fetching duas:', error);
+      setError('Failed to fetch duas. Please try again later.');
     } else {
       setDuas(data || []);
     }
@@ -81,6 +95,11 @@ export default function DuaBoard() {
 
   const handleDuaCount = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!supabase) {
+      setError('Supabase client is not initialized. Check your environment variables.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('duas')
       .update({ duacount: duas.find(d => d.id === id)!.duacount + 1 })
@@ -89,6 +108,7 @@ export default function DuaBoard() {
 
     if (error) {
       console.error('Error updating dua count:', error);
+      setError('Failed to update dua count. Please try again.');
     } else if (data) {
       setDuas(prevDuas =>
         prevDuas.map(dua =>
@@ -97,6 +117,10 @@ export default function DuaBoard() {
       );
     }
   };
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

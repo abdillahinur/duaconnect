@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from "next/link";
-import PrayerHandsIcon from './icons/PrayerHandsIcon';
 import { createClient } from '@supabase/supabase-js';
+import PrayerHandsIcon from './icons/PrayerHandsIcon';
 
 interface Dua {
   id: number;
@@ -32,7 +31,6 @@ export default function DuaBoard() {
   const [newDua, setNewDua] = useState("");
   const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDuas();
@@ -40,7 +38,7 @@ export default function DuaBoard() {
 
   const fetchDuas = async () => {
     if (!supabase) {
-      setError('Supabase client is not initialized. Check your environment variables.');
+      console.error('Supabase client is not initialized');
       return;
     }
 
@@ -51,7 +49,6 @@ export default function DuaBoard() {
 
     if (error) {
       console.error('Error fetching duas:', error);
-      setError('Failed to fetch duas. Please try again later.');
     } else {
       setDuas(data || []);
     }
@@ -96,7 +93,7 @@ export default function DuaBoard() {
   const handleDuaCount = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!supabase) {
-      setError('Supabase client is not initialized. Check your environment variables.');
+      console.error('Supabase client is not initialized');
       return;
     }
 
@@ -108,7 +105,6 @@ export default function DuaBoard() {
 
     if (error) {
       console.error('Error updating dua count:', error);
-      setError('Failed to update dua count. Please try again.');
     } else if (data) {
       setDuas(prevDuas =>
         prevDuas.map(dua =>
@@ -117,10 +113,6 @@ export default function DuaBoard() {
       );
     }
   };
-
-  if (error) {
-    return <div className="text-red-600">{error}</div>;
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -194,11 +186,6 @@ export default function DuaBoard() {
           </div>
         </div>
       )}
-      <footer className="bg-green-100 py-6">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-gray-600">© 2024 DuaLink. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

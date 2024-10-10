@@ -1,81 +1,84 @@
+# DuaLink
 
-# DuaConnect
-
-**DuaConnect** is a web platform designed for Muslims to submit, share, and respond to Dua (supplication) requests in a supportive and community-driven environment. Whether you're seeking prayers for personal challenges, health, success, or gratitude, DuaConnect provides an easy-to-use space to connect with others in faith and devotion.
+DuaLink is a platform where Muslims from all over the world can connect, share, and offer support through heartfelt supplications (duas). It provides a safe and private space for personal supplications, allowing users to engage in collective worship and spiritual support.
 
 ## Features
 
-- **Submit Dua Requests**: Easily submit your own Dua requests to the community, specifying what you seek prayers for.
-- **Community Support**: Other users can view and make Dua for your requests, creating a shared sense of purpose and support.
-- **Islamic Dua Resources**: Access a library of Duas from the Quran and Sunnah, curated to assist users in various aspects of life.
-- **Daily Dua Reminders**: Set daily reminders to make Duas for yourself and others, enhancing your spiritual routine.
-- **Multilingual Support**: Available in multiple languages, including Arabic and English.
-- **AI-Powered Suggestions**: Leverage AI from OpenAI to provide personalized Dua suggestions and insights based on user input.
+- **Dua Board**: Share your duas and support others by offering prayers in response to their requests.
+- **Global Community**: Join Muslims worldwide in collective worship and solidarity.
+- **Spiritual Support**: Receive words of inspiration for each dua you post, helping you strengthen your faith in difficult times.
 
 ## How It Works
 
-1. **Create an Account**: Sign up to start submitting, browsing, and responding to Dua requests.
-2. **Submit a Request**: Describe your situation and what you'd like the community to pray for.
-3. **Make Dua for Others**: Browse other requests and offer your support by making Duas on behalf of other users.
-4. **AI-Powered Dua Suggestions**: Use OpenAI’s powerful language model to receive Dua suggestions based on your specific needs.
-5. **Dua Notifications**: Receive notifications when others make Dua for you.
-6. **Dua Resources**: Explore the library of Quranic verses and authentic Hadiths that offer guidance on making Duas.
+1. **Share Your Duas**: Post your dua requests for yourself, your loved ones, or the wider Muslim community.
+2. **Offer Prayers**: Respond to others’ dua requests by offering your prayers and showing support.
+3. **Receive Inspiration**: Get personalized inspirational words for every dua request to guide and strengthen your faith.
 
-## Technology Stack
+## Core Values
 
-- **Frontend**: Built with [Next.js](https://nextjs.org/), providing fast and dynamic user interfaces.
-- **Backend & Database**: Powered by [Supabase](https://supabase.io/), handling authentication, real-time data, and database management.
-- **AI Integration**: [OpenAI](https://openai.com/) is integrated to provide personalized Dua suggestions and intelligent features.
-- **Authentication**: Secure user authentication with Supabase.
+- **Compassion**: Acts of kindness and empathy are at the heart of DuaLink.
+- **Unity**: Bringing Muslims together from diverse backgrounds and cultures through shared faith.
+- **Faith**: Strengthening the connection with Allah (SWT) through collective prayers.
+- **Confidentiality**: Your supplications are treated with privacy and care, ensuring a safe space for personal reflection.
 
-## Installation
+## Usage
 
-1. Clone the repository:
+1. **Installation**
 
-    ```bash
-    git clone https://github.com/abdillahinur/duaconnect.git
-    ```
+   Clone the repository:
 
-2. Navigate to the project directory:
+   ```bash
+   git clone https://github.com/yourusername/dualink.git
+   cd dualink
 
-    ```bash
-    cd duaconnect
-    ```
+2. **Environment Variables**
 
-3. Install dependencies:
+   You need to set up your environment variables by creating a `.env.local` file in the root directory with the following keys:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+   GOOGLE_API_KEY=your-google-api-key
 
-4. Set up environment variables for Supabase and OpenAI by creating a `.env.local` file:
 
-    ```
-    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-    OPENAI_API_KEY=your-openai-api-key
-    ```
+   Install Dependencies
 
-5. Start the development server:
+3. **Install the required dependencies:**
 
-    ```bash
-    npm run dev
-    ```
+bash
+Copy code
+npm install
+Run the Development Server
 
-6. Open [http://localhost:3000](http://localhost:3000) to view the app.
+4. **Start the development server:**
 
-## Contributing
+bash
+Copy code
+npm run dev
+Open http://localhost:3000 in your browser to see the app in action.
 
-Contributions are welcome! To contribute:
+API Routes
+DuaLink uses an API to validate dua content and provide related Quranic ayahs using Google APIs.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Submit a pull request and provide details of your changes.
+POST /api/google-check-dua
 
-## License
+Validates the submitted dua and provides related inspirational ayahs from the Quran.
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Deployment
+DuaLink is hosted on Vercel. To deploy the application, you can link your GitHub repository to Vercel and push your changes. Vercel will handle the build and deployment automatically.
 
-## Support & Feedback
+Contributing
+We welcome contributions from the community! Here’s how you can get involved:
 
-If you have any questions, feedback, or feature requests, feel free to open an issue or reach out via email.
+Fork the repository.
+Create a new feature branch.
+Commit your changes.
+Open a pull request.
+License
+DuaLink is licensed under the MIT License.
+
+Contact
+If you have any questions or need help, feel free to contact us:
+
+Email: support@dualink.com
+Twitter: @AbdillahiNur_

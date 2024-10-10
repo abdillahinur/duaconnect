@@ -8,18 +8,38 @@ export default function ContactForm() {
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
+  const [submitError, setSubmitError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulating an API call
-    setTimeout(() => {
-      setSubmitMessage(`Thank you, ${name}! We've received your message and will get back to you soon.`)
+    setSubmitMessage('')
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, message }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSubmitMessage(`Thank you, ${name}! We've received your message and will get back to you soon.`)
+        setName('')
+        setEmail('')
+        setMessage('')
+      } else {
+        setSubmitError(data.error || 'Failed to send message. Please try again.')
+      }
+    } catch (error) {
+      setSubmitError('An error occurred. Please try again.')
+    } finally {
       setIsSubmitting(false)
-      setName('')
-      setEmail('')
-      setMessage('')
-    }, 1000)
+    }
   }
 
   return (
@@ -75,6 +95,9 @@ export default function ContactForm() {
       </form>
       {submitMessage && (
         <p className="text-green-600 font-medium">{submitMessage}</p>
+      )}
+      {submitError && (
+        <p className="text-red-600 font-medium">{submitError}</p>
       )}
     </div>
   )

@@ -1,21 +1,21 @@
-import React from 'react'
+import React from 'react';
 
 export default function PrayerHandsIcon({ className }: { className?: string }) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-      >
-        <path d="M17 2.5c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
-        <path d="M7 2.5c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
-        <path d="M17 15.5c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5z" />
-        <path d="M7 15.5c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5z" />
-      </svg>
-    )
-  }
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 5.69l1.45 1.45c.3.3.49.71.49 1.13v4.25c0 .55.45 1 1 1s1-.45 1-1V9.5c0-.42.19-.83.49-1.13L18 7.28" />
+      <path d="M12 5.69l-1.45 1.45c-.3.3-.49.71-.49 1.13v4.25c0 .55-.45 1-1 1s-1-.45-1-1V9.5c0-.42-.19-.83-.49-1.13L6 7.28" />
+      <path d="M7.5 11h-.01M9.5 11H15.5M11.5 11H11.5" />
+      <path d="M9.5 21h.01M11.5 21H13.5M15.5 21H17.5" />
+    </svg>
+  );
+}

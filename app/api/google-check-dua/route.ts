@@ -17,16 +17,16 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables');
-  throw new Error('Missing Supabase environment variables');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 export async function POST(req: Request) {
-  console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '[EXISTS]' : '[MISSING]');
   try {
+    console.log('API route started');
     const { duaContent } = await req.json();
+    console.log('Received dua content:', duaContent);
+
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       throw new Error("Dua content is missing");
     }
 
+    console.log('Sending request to Google API');
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -66,12 +67,26 @@ export async function POST(req: Request) {
       throw new Error(`Google API returned an error: ${response.statusText}`);
     }
 
+    console.log('Received response from Google API');
     const data = await response.json() as GoogleApiResponse;
+    console.log('Google API response:', JSON.stringify(data, null, 2));
+    
     const responseText = data.candidates[0].content.parts[0].text;
-    const apiResponse = JSON.parse(responseText);
+    console.log('Extracted response text:', responseText);
+
+    // Clean the response text by removing markdown-style code block markers
+    const jsonMatch = responseText.match(/\{[\s\S]*?\}/);  // Match the JSON part
+    if (!jsonMatch) {
+      throw new Error("Unable to extract JSON from API response");
+    }
+
+    const jsonString = jsonMatch[0]; // Extract the valid JSON from the response
+    const apiResponse = JSON.parse(jsonString);  // Parse the extracted JSON
+    console.log('Parsed API response:', apiResponse);
 
     if (apiResponse.isAppropriate) {
-      const { error: insertError } = await supabase
+      console.log('Dua is appropriate, inserting into Supabase');
+      const { data: insertedDua, error: insertError } = await supabase
         .from('duas')
         .insert([
           {
@@ -82,21 +97,54 @@ export async function POST(req: Request) {
             duacount: 0,
             created_at: new Date().toISOString()
           }
-        ]);
+        ])
+        .select();
 
       if (insertError) {
         throw new Error(`Error inserting dua into Supabase: ${insertError.message}`);
       }
-    }
 
-    return NextResponse.json({ 
-      isValid: apiResponse.isAppropriate,
-      relatedAyah: apiResponse.relatedAyah,
-      ayahTranslation: apiResponse.ayahTranslation,
-      ayahReference: apiResponse.ayahReference
-    });
+      console.log('Dua inserted successfully:', insertedDua);
+      return NextResponse.json({
+        isValid: true,
+        relatedAyah: apiResponse.relatedAyah,
+        ayahTranslation: apiResponse.ayahTranslation,
+        ayahReference: apiResponse.ayahReference,
+        insertedDua: insertedDua[0]
+      });
+    } else {
+      console.log('Dua was deemed inappropriate');
+      return NextResponse.json({
+        isValid: false,
+        message: "The dua was deemed inappropriate."
+      });
+    }
   } catch (error) {
     console.error("Error in API route:", error);
-    return NextResponse.json({ error: "An error occurred while processing your request." }, { status: 500 });
+    let errorMessage = "An unknown error occurred";
+    let errorDetails: Record<string, unknown> = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = {
+        name: error.name,
+        stack: error.stack
+      };
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error && typeof error === 'object') {
+      errorMessage = String(error);
+      errorDetails = error as Record<string, unknown>;
+    }
+    
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: errorDetails,
+      env: {
+        hasGoogleApiKey: !!process.env.GOOGLE_API_KEY,
+        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      }
+    }, { status: 500 });
   }
 }

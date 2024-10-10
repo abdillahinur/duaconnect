@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import Link from "next/link";
 import PrayerHandsIcon from './icons/PrayerHandsIcon';
+import { createClient } from '@supabase/supabase-js';
 
 interface Dua {
   id: number;
@@ -14,34 +15,34 @@ interface Dua {
   ayah_reference: string;
 }
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-let supabase: any = null;
-
-if (supabaseUrl && supabaseAnonKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
-} else {
-  console.error('Supabase URL or Anon Key is missing');
+interface ErrorResponse {
+  error: string;
+  details?: Record<string, unknown>;
+  env?: {
+    hasGoogleApiKey: boolean;
+    hasSupabaseUrl: boolean;
+    hasSupabaseKey: boolean;
+  };
 }
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function DuaBoard() {
   const [duas, setDuas] = useState<Dua[]>([]);
   const [newDua, setNewDua] = useState("");
   const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [errorDetails, setErrorDetails] = useState<ErrorResponse | null>(null);
 
   useEffect(() => {
     fetchDuas();
   }, []);
 
   const fetchDuas = async () => {
-    if (!supabase) {
-      console.error('Supabase client is not initialized');
-      return;
-    }
-
     const { data, error } = await supabase
       .from('duas')
       .select('*')
@@ -58,6 +59,10 @@ export default function DuaBoard() {
     e.preventDefault();
     if (newDua.trim() === "") return;
 
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setErrorDetails(null);
+
     try {
       const response = await fetch('/api/google-check-dua', {
         method: 'POST',
@@ -67,22 +72,26 @@ export default function DuaBoard() {
         body: JSON.stringify({ duaContent: newDua }),
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
       const data = await response.json();
 
-      if (data.isValid) {
-        setMessage("Your dua has been submitted successfully.");
-        setNewDua("");
-        fetchDuas(); // Refresh the dua list
+      if (response.ok) {
+        if (data.isValid) {
+          setDuas(prevDuas => [data.insertedDua, ...prevDuas]);
+          setNewDua("");
+          setSubmitMessage("Your dua has been submitted successfully.");
+        } else {
+          setSubmitMessage("The dua you entered is not appropriate. Please try again.");
+        }
       } else {
-        setMessage("The dua you entered is not appropriate. Please try again.");
+        setErrorDetails(data as ErrorResponse);
       }
     } catch (error) {
       console.error('Error submitting dua:', error);
-      setMessage("An error occurred while submitting your dua. Please try again.");
+      setErrorDetails({
+        error: 'An unexpected error occurred while submitting your dua.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,11 +101,6 @@ export default function DuaBoard() {
 
   const handleDuaCount = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!supabase) {
-      console.error('Supabase client is not initialized');
-      return;
-    }
-
     const { data, error } = await supabase
       .from('duas')
       .update({ duacount: duas.find(d => d.id === id)!.duacount + 1 })
@@ -127,10 +131,17 @@ export default function DuaBoard() {
             rows={3}
             required
           />
-          <button type="submit" className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-            Submit Dua
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Dua'}
           </button>
         </form>
+        {submitMessage && (
+          <p className="mb-4 text-green-600 font-medium">{submitMessage}</p>
+        )}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {duas.map(dua => (
             <div 
@@ -173,19 +184,43 @@ export default function DuaBoard() {
           </div>
         </div>
       )}
-      {message && (
+      {errorDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <p className="text-center mb-4">{message}</p>
+            <h3 className="text-xl font-bold mb-2">Error</h3>
+            <p className="text-red-600 mb-4">{errorDetails.error}</p>
+            {errorDetails.details && (
+              <div className="mb-4">
+                <h4 className="font-semibold">Details:</h4>
+                <pre className="text-sm overflow-auto max-h-40">
+                  {JSON.stringify(errorDetails.details, null, 2)}
+                </pre>
+              </div>
+            )}
+            {errorDetails.env && (
+              <div className="mb-4">
+                <h4 className="font-semibold">Environment:</h4>
+                <ul className="list-disc list-inside">
+                  <li>Google API Key: {errorDetails.env.hasGoogleApiKey ? 'Set' : 'Missing'}</li>
+                  <li>Supabase URL: {errorDetails.env.hasSupabaseUrl ? 'Set' : 'Missing'}</li>
+                  <li>Supabase Key: {errorDetails.env.hasSupabaseKey ? 'Set' : 'Missing'}</li>
+                </ul>
+              </div>
+            )}
             <button
-              onClick={() => setMessage(null)}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              OK
-            </button>
-          </div>
+  onClick={() => setErrorDetails(null)}
+  className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+>
+  Close
+</button>
+              </div>
+            </div>
+          )}
+          <footer className="bg-green-100 py-6">
+            <div className="container mx-auto px-4">
+              <p className="text-center text-gray-600">© 2024 DuaLink. All rights reserved.</p>
+            </div>
+          </footer>
         </div>
-      )}
-    </div>
-  );
-}
+      );
+    }

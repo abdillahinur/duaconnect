@@ -17,9 +17,10 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables');
+  throw new Error('Missing Supabase environment variables');
 }
 
-const supabase = createClient(supabaseUrl!, supabaseKey!);
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: Request) {
   try {

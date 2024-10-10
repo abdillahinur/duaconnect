@@ -15,7 +15,7 @@ export default function ContactPage() {
                   Contact Us
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  We're here to help. Reach out to us with any questions, suggestions, or support needs.
+                  We&apos;re here to help. Reach out to us with any questions, suggestions, or support needs.
                 </p>
               </div>
             </div>

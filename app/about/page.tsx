@@ -1,5 +1,6 @@
 // app/about/page.tsx
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -10,14 +11,21 @@ export default function AboutPage() {
       </p>
 
       {/* Global Community Image */}
-      <div className="mb-8">
-        <img src="/images/community.jpg" alt="Global Community" className="rounded-lg shadow-lg w-full max-w-2xl" />
+      <div className="mb-8 w-full max-w-2xl">
+        <Image 
+          src="/images/community.jpg" 
+          alt="Global Community" 
+          width={800} 
+          height={600} 
+          layout="responsive"
+          className="rounded-lg shadow-lg"
+        />
       </div>
 
       <div className="text-lg text-gray-600 mb-8 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
         <p className="mb-4">
-          DuaLink's mission is simple: to provide a platform where people can request and offer prayers, and engage in meaningful acts of spiritual support. We want to create a global network of Muslims who uplift one another, strengthen their connection to Allah (SWT), and find solace in collective prayer.
+          DuaLink&apos;s mission is simple: to provide a platform where people can request and offer prayers, and engage in meaningful acts of spiritual support. We want to create a global network of Muslims who uplift one another, strengthen their connection to Allah (SWT), and find solace in collective prayer.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">Why DuaLink?</h2>
@@ -29,8 +37,15 @@ export default function AboutPage() {
       </div>
 
       {/* Spiritual Support Image */}
-      <div className="mb-8">
-        <img src="/images/spiritual_support.jpg" alt="Spiritual Support" className="rounded-lg shadow-lg w-full max-w-2xl" />
+      <div className="mb-8 w-full max-w-2xl">
+        <Image 
+          src="/images/spiritual_support.jpg" 
+          alt="Spiritual Support" 
+          width={800} 
+          height={600} 
+          layout="responsive"
+          className="rounded-lg shadow-lg"
+        />
       </div>
 
       <div className="text-lg text-gray-600 mb-8 max-w-2xl text-center">
@@ -59,7 +74,7 @@ export default function AboutPage() {
       </div>
 
       <p className="text-lg text-gray-700 max-w-3xl text-center mb-12">
-        We welcome you to join us in building a community of prayer and support. DuaLink is more than just a platform – it’s a place where the power of dua transcends boundaries, and where individuals can come together to support one another through their faith.
+        We welcome you to join us in building a community of prayer and support. DuaLink is more than just a platform – it&apos;s a place where the power of dua transcends boundaries, and where individuals can come together to support one another through their faith.
       </p>
 
       <Link href="/" className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">

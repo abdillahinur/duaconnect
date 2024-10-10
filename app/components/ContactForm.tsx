@@ -28,7 +28,7 @@ export default function ContactForm() {
       const data = await response.json()
 
       if (response.ok) {
-        setSubmitMessage(`Thank you, ${name}! We've received your message and will get back to you soon.`)
+        setSubmitMessage(`Thank you, ${name}! We&apos;ve received your message and will get back to you soon.`)
         setName('')
         setEmail('')
         setMessage('')
@@ -46,7 +46,7 @@ export default function ContactForm() {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Get in Touch</h2>
       <p className="text-gray-600">
-        Fill out the form below, and we'll get back to you as soon as possible.
+        Fill out the form below, and we&apos;ll get back to you as soon as possible.
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">

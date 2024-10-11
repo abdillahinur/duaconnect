@@ -52,12 +52,13 @@ export async function POST(req: Request) {
             2. Asks for a boyfriend or girlfriend
             3. Contains any other inappropriate content
             
-            If the dua is appropriate, provide a related Quranic ayah.
+            If the dua is appropriate, provide either a related Quranic ayah or a hadith (for Sunni Muslims), whichever is more closely related to the dua.
             Respond in JSON format with these fields:
             1. "isAppropriate": a boolean indicating if the dua is appropriate
-            2. "relatedAyah": if isAppropriate is true, provide a related Quranic ayah in Arabic
-            3. "ayahTranslation": if isAppropriate is true, provide an English translation of the ayah
-            4. "ayahReference": if isAppropriate is true, provide the Surah name and ayah number (e.g., "Al-Baqarah: 286")`
+            2. "relatedText": if isAppropriate is true, provide either a related Quranic ayah or hadith in Arabic
+            3. "textTranslation": if isAppropriate is true, provide an English translation of the ayah or hadith
+            4. "textReference": if isAppropriate is true, provide the reference (e.g., "Al-Baqarah: 286" for Quran or "Sahih al-Bukhari 6502" for hadith)
+            5. "textType": if isAppropriate is true, specify either "ayah" or "hadith"`
           }]
         }]
       }),
@@ -91,9 +92,10 @@ export async function POST(req: Request) {
         .insert([
           {
             content: duaContent,
-            related_ayah: apiResponse.relatedAyah,
-            ayah_translation: apiResponse.ayahTranslation,
-            ayah_reference: apiResponse.ayahReference,
+            related_text: apiResponse.relatedText,
+            text_translation: apiResponse.textTranslation,
+            text_reference: apiResponse.textReference,
+            text_type: apiResponse.textType,
             duacount: 0,
             created_at: new Date().toISOString()
           }
@@ -107,9 +109,10 @@ export async function POST(req: Request) {
       console.log('Dua inserted successfully:', insertedDua);
       return NextResponse.json({
         isValid: true,
-        relatedAyah: apiResponse.relatedAyah,
-        ayahTranslation: apiResponse.ayahTranslation,
-        ayahReference: apiResponse.ayahReference,
+        relatedText: apiResponse.relatedText,
+        textTranslation: apiResponse.textTranslation,
+        textReference: apiResponse.textReference,
+        textType: apiResponse.textType,
         insertedDua: insertedDua[0]
       });
     } else {

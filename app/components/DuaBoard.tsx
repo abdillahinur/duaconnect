@@ -10,9 +10,10 @@ interface Dua {
   content: string;
   created_at: string;
   duacount: number;
-  related_ayah: string;
-  ayah_translation: string;
-  ayah_reference: string;
+  related_text: string;
+  text_translation: string;
+  text_reference: string;
+  text_type: 'ayah' | 'hadith';
 }
 
 interface ErrorResponse {
@@ -37,6 +38,7 @@ export default function DuaBoard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [errorDetails, setErrorDetails] = useState<ErrorResponse | null>(null);
+  const [successfulDua, setSuccessfulDua] = useState<Dua | null>(null);
 
   useEffect(() => {
     fetchDuas();
@@ -76,9 +78,11 @@ export default function DuaBoard() {
 
       if (response.ok) {
         if (data.isValid) {
-          setDuas(prevDuas => [data.insertedDua, ...prevDuas]);
+          const newDuaData = data.insertedDua;
+          setDuas(prevDuas => [newDuaData, ...prevDuas]);
           setNewDua("");
           setSubmitMessage("Your dua has been submitted successfully.");
+          setSuccessfulDua(newDuaData);
         } else {
           setSubmitMessage("The dua you entered is not appropriate. Please try again.");
         }
@@ -117,6 +121,31 @@ export default function DuaBoard() {
       );
     }
   };
+
+  const renderDuaModal = (dua: Dua, onClose: () => void) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h2 className="text-xl font-bold mb-2">Dua Details</h2>
+        <p className="mb-2">{dua.content}</p>
+        <p className="text-sm text-gray-500 mb-2">Submitted on: {new Date(dua.created_at).toLocaleString()}</p>
+        <p className="text-sm text-gray-500 mb-4">Dua count: {dua.duacount}</p>
+        <div className="bg-green-50 p-2 rounded-md mb-4">
+          <p className="text-sm mb-2" dir="rtl">{dua.related_text}</p>
+          <p className="text-sm mb-2">{dua.text_translation}</p>
+          <p className="text-xs text-gray-500">
+            {dua.text_type === 'ayah' ? 'Surah ' : 'Hadith: '}
+            {dua.text_reference}
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -163,27 +192,8 @@ export default function DuaBoard() {
           ))}
         </div>
       </main>
-      {selectedDua && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-2">Dua Details</h2>
-            <p className="mb-2">{selectedDua.content}</p>
-            <p className="text-sm text-gray-500 mb-2">Submitted on: {new Date(selectedDua.created_at).toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mb-4">Dua count: {selectedDua.duacount}</p>
-            <div className="bg-green-50 p-2 rounded-md mb-4">
-              <p className="text-sm mb-2" dir="rtl">{selectedDua.related_ayah}</p>
-              <p className="text-sm mb-2">{selectedDua.ayah_translation}</p>
-              <p className="text-xs text-gray-500">Surah {selectedDua.ayah_reference}</p>
-            </div>
-            <button
-              onClick={() => setSelectedDua(null)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {selectedDua && renderDuaModal(selectedDua, () => setSelectedDua(null))}
+      {successfulDua && renderDuaModal(successfulDua, () => setSuccessfulDua(null))}
       {errorDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -208,19 +218,19 @@ export default function DuaBoard() {
               </div>
             )}
             <button
-  onClick={() => setErrorDetails(null)}
-  className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
->
-  Close
-</button>
-              </div>
-            </div>
-          )}
-          <footer className="bg-green-100 py-6">
-            <div className="container mx-auto px-4">
-              <p className="text-center text-gray-600">© 2024 DuaLink. All rights reserved.</p>
-            </div>
-          </footer>
+              onClick={() => setErrorDetails(null)}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      );
-    }
+      )}
+      <footer className="bg-green-100 py-6">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-gray-600">© 2024 DuaLink. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}

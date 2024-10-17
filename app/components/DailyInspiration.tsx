@@ -317,115 +317,122 @@ ${inspiration.hadith}`
     window.open(url, '_blank')
   }
 
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Daily Inspiration</h1>
-      <p className="text-center mb-8 text-lg">
-        Receive daily Quranic verses and hadith to inspire your day.
-      </p>
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500"></div>
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1">
+      <div className="container mx-auto px-4 pt-0 pb-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">Daily Inspiration</h1>
+            <p className="text-lg">
+              Receive daily Quranic verses and hadith to inspire your day.
+            </p>
+          </div>
+  
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500"></div>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 -mx-20 md:mx-0">
+              <div className="bg-white shadow p-4 md:rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <BookOpenIcon className="mr-2 h-6 w-6 text-green-600" />
+                  Quranic Verse of the Day
+                </h2>
+                <p className="text-2xl mb-4 text-right font-arabic" lang="ar" dir="rtl">{inspiration.quranVerse.arabic}</p>
+                <p className="text-lg mb-4">{inspiration.quranVerse.english}</p>
+                <p className="text-sm text-gray-600">Surah {inspiration.quranVerse.surah}, Ayah {inspiration.quranVerse.ayah}</p>
+              </div>
+  
+              <div className="bg-white shadow p-4  md:rounded-lg">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <StarIcon className="mr-2 h-6 w-6 text-green-600" />
+                  Hadith of the Day
+                </h2>
+                <p className="text-lg">{inspiration.hadith}</p>
+              </div>
+            </div>
+          )}
+  
+          <div className="mt-8 bg-white shadow p-4 md:rounded-lg -mx-20 md:mx-0">
+            <h2 className="text-xl font-semibold mb-4">Receive Daily Inspiration</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number (with country code)</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="+1234567890"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="sms-opt-in"
+                  type="checkbox"
+                  checked={smsOptIn}
+                  onChange={(e) => setSmsOptIn(e.target.checked)}
+                  className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <label htmlFor="sms-opt-in" className="text-sm text-gray-700">Receive daily inspiration via SMS</label>
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="email-opt-in"
+                  type="checkbox"
+                  checked={emailOptIn}
+                  onChange={(e) => setEmailOptIn(e.target.checked)}
+                  className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <label htmlFor="email-opt-in" className="text-sm text-gray-700">Receive daily inspiration via Email</label>
+              </div>
+              <button type="submit" className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                Subscribe to Daily Inspiration
+              </button>
+            </form>
+          </div>
+  
+          <div className="mt-8 text-center">
+            <button 
+              onClick={handleShare}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 inline-flex items-center"
+            >
+              Share Today&apos;s Inspiration <Share2Icon className="ml-2 h-5 w-5" />
+            </button>
+  
+            {showShareOptions && (
+              <div className="mt-4 flex justify-center space-x-4">
+                <button onClick={() => handleSocialShare('twitter')} className="text-blue-400 hover:text-blue-600">
+                  <TwitterIcon size={24} />
+                </button>
+                <button onClick={() => handleSocialShare('facebook')} className="text-blue-600 hover:text-blue-800">
+                  <FacebookIcon size={24} />
+                </button>
+                <button onClick={() => handleSocialShare('linkedin')} className="text-blue-700 hover:text-blue-900">
+                  <LinkedinIcon size={24} />
+                </button>
+                <button onClick={() => handleSocialShare('sms')} className="text-green-600 hover:text-green-800">
+                  <MessageCircleIcon size={24} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <BookOpenIcon className="mr-2 h-6 w-6 text-green-600" />
-              Quranic Verse of the Day
-            </h2>
-            <p className="text-2xl mb-4 text-right font-arabic" lang="ar" dir="rtl">{inspiration.quranVerse.arabic}</p>
-            <p className="text-lg mb-4">{inspiration.quranVerse.english}</p>
-            <p className="text-sm text-gray-600">Surah {inspiration.quranVerse.surah}, Ayah {inspiration.quranVerse.ayah}</p>
-          </div>
-
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <StarIcon className="mr-2 h-6 w-6 text-green-600" />
-              Hadith of the Day
-            </h2>
-            <p className="text-lg">{inspiration.hadith}</p>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white shadow rounded-lg p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">Receive Daily Inspiration</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number (with country code)</label>
-            <input
-              id="phone"
-              type="tel"
-              placeholder="+1234567890"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              id="sms-opt-in"
-              type="checkbox"
-              checked={smsOptIn}
-              onChange={(e) => setSmsOptIn(e.target.checked)}
-              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-            />
-            <label htmlFor="sms-opt-in" className="text-sm text-gray-700">Receive daily inspiration via SMS</label>
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-            <input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              id="email-opt-in"
-              type="checkbox"
-              checked={emailOptIn}
-              onChange={(e) => setEmailOptIn(e.target.checked)}
-              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-            />
-            <label htmlFor="email-opt-in" className="text-sm text-gray-700">Receive daily inspiration via Email</label>
-          </div>
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            Subscribe to Daily Inspiration
-          </button>
-        </form>
-      </div>
-
-      <div className="mt-8 text-center">
-        <button 
-          onClick={handleShare}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center"
-        >
-          Share Today&apos;s Inspiration <Share2Icon className="ml-2 h-4 w-4" />
-        </button>
-
-        {showShareOptions && (
-          <div className="mt-4 flex justify-center space-x-4">
-            <button onClick={() => handleSocialShare('twitter')} className="text-blue-400 hover:text-blue-600">
-              <TwitterIcon size={24} />
-            </button>
-            <button onClick={() => handleSocialShare('facebook')} className="text-blue-600 hover:text-blue-800">
-              <FacebookIcon size={24} />
-            </button>
-            <button onClick={() => handleSocialShare('linkedin')} className="text-blue-700 hover:text-blue-900">
-              <LinkedinIcon size={24} />
-            </button>
-            <button onClick={() => handleSocialShare('sms')} className="text-green-600 hover:text-green-800">
-              <MessageCircleIcon size={24} />
-            </button>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   )
 }

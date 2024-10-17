@@ -269,7 +269,14 @@ export default function DailyInspiration() {
     setEmailOptIn(false)
   }
 
-  const shareText = `Daily Inspiration:\n\nQuran Verse:\n${inspiration.quranVerse.english}\n- Surah ${inspiration.quranVerse.surah}, Ayah ${inspiration.quranVerse.ayah}\n\nHadith:\n${inspiration.hadith}`
+  const shareText = `https://dualink.vercel.app/daily-inspiration
+
+Quran Verse:
+${inspiration.quranVerse.english}
+- Surah ${inspiration.quranVerse.surah}, Ayah ${inspiration.quranVerse.ayah}
+
+Hadith:
+${inspiration.hadith}`
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -277,7 +284,7 @@ export default function DailyInspiration() {
         await navigator.share({
           title: 'Daily Inspiration',
           text: shareText,
-          url: window.location.href,
+          url: 'https://dualink.vercel.app/daily-inspiration',
         })
       } catch (error) {
         console.error('Error sharing:', error)
@@ -290,11 +297,11 @@ export default function DailyInspiration() {
   const handleSocialShare = (platform: string) => {
     let url = ''
     const encodedText = encodeURIComponent(shareText)
-    const currentUrl = encodeURIComponent(window.location.href)
+    const currentUrl = encodeURIComponent('https://dualink.vercel.app/daily-inspiration')
 
     switch (platform) {
       case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${currentUrl}`
+        url = `https://twitter.com/intent/tweet?text=${encodedText}`
         break
       case 'facebook':
         url = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`

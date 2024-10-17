@@ -11,7 +11,7 @@ DuaLink is a platform where Muslims from all over the world can connect, share, 
 ## How It Works
 
 1. **Share Your Duas**: Post your dua requests for yourself, your loved ones, or the wider Muslim community.
-2. **Offer Prayers**: Respond to others’ dua requests by offering your prayers and showing support.
+2. **Offer Prayers**: Respond to others' dua requests by offering your prayers and showing support.
 3. **Receive Inspiration**: Get personalized inspirational words for every dua request to guide and strengthen your faith.
 
 ## Core Values
@@ -23,62 +23,60 @@ DuaLink is a platform where Muslims from all over the world can connect, share, 
 
 ## Usage
 
-1. **Installation**
+### Installation
 
-   Clone the repository:
-
+1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/dualink.git
    cd dualink
+   ```
 
-2. **Environment Variables**
-
-   You need to set up your environment variables by creating a `.env.local` file in the root directory with the following keys:
-
-   ```bash
+2. Set up environment variables:
+   Create a `.env.local` file in the root directory with the following keys:
+   ```
    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
    SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
    GOOGLE_API_KEY=your-google-api-key
+   ```
 
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-   Install Dependencies
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-3. **Install the required dependencies:**
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
 
-bash
-Copy code
-npm install
-Run the Development Server
+## API Routes
 
-4. **Start the development server:**
-
-bash
-Copy code
-npm run dev
-Open http://localhost:3000 in your browser to see the app in action.
-
-API Routes
 DuaLink uses an API to validate dua content and provide related Quranic ayahs using Google APIs.
 
-POST /api/google-check-dua
+- `POST /api/google-check-dua`: Validates the submitted dua and provides related inspirational ayahs from the Quran.
 
-Validates the submitted dua and provides related inspirational ayahs from the Quran.
+## Deployment
 
-Deployment
-DuaLink is hosted on Vercel. To deploy the application, you can link your GitHub repository to Vercel and push your changes. Vercel will handle the build and deployment automatically.
+DuaLink is hosted on Vercel. To deploy the application, link your GitHub repository to Vercel and push your changes. Vercel will handle the build and deployment automatically.
 
-Contributing
-We welcome contributions from the community! Here’s how you can get involved:
+## Contributing
 
-Fork the repository.
-Create a new feature branch.
-Commit your changes.
-Open a pull request.
-License
+We welcome contributions from the community! Here's how you can get involved:
+
+1. Fork the repository.
+2. Create a new feature branch.
+3. Commit your changes.
+4. Open a pull request.
+
+## License
+
 DuaLink is licensed under the MIT License.
 
-Contact
+## Contact
+
 If you have any questions or need help, feel free to contact us:
 
-Email: support@dualink.com
-Twitter: @AbdillahiNur_
+- Email: support@dualink.com
+- Twitter: [@AbdillahiNur_](https://twitter.com/AbdillahiNur_)

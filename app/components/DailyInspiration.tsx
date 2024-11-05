@@ -29,6 +29,44 @@ interface InspirationData {
   hadith: string;
 }
 
+function parseHadith(hadithContent: string | null | undefined): string {
+  if (!hadithContent) return '';
+  
+  try {
+    // If it's a JSON string of an empty object, return empty string
+    if (hadithContent === '{}') return '';
+    
+    // If it's a JSON string, try to parse it
+    const parsed = JSON.parse(hadithContent);
+    if (typeof parsed === 'object' && !parsed.text) return '';
+    if (typeof parsed === 'string') return parsed;
+    return hadithContent;
+  } catch (e) {
+    // If it's not JSON, return the original string
+    return hadithContent;
+  }
+}
+
+function parseHadithWithSource(hadithText: string): { 
+  text: string; 
+  source: string; 
+} {
+  if (!hadithText) return { text: '', source: '' };
+
+  // Look for patterns like (Sahih Bukhari 1234) or (Sahih Muslim 5678)
+  const sourceMatch = hadithText.match(/\((Sahih (?:Bukhari|Muslim) \d+)\)$/);
+  
+  if (sourceMatch) {
+    // Remove the source from the main text and return both parts
+    const text = hadithText.replace(sourceMatch[0], '').trim();
+    const source = sourceMatch[1];
+    return { text, source };
+  }
+
+  return { text: hadithText, source: '' };
+}
+
+
 async function fetchFromGenerativeAI(attempt: number): Promise<InspirationData | null> {
   try {
     const response = await fetch('/api/getdailyinspiration', {
@@ -79,16 +117,14 @@ async function getLatestInspiration(): Promise<InspirationData | null> {
       return null;
     }
 
-    console.log('Successfully fetched data:', JSON.stringify(data, null, 2));
-
     return {
       quranVerse: {
-        arabic: data.quran_arabic,
-        english: data.quran_english,
-        surah: data.quran_surah,
-        ayah: data.quran_ayah
+        arabic: data.quran_arabic || '',
+        english: data.quran_english || '',
+        surah: data.quran_surah || '',
+        ayah: data.quran_ayah || ''
       },
-      hadith: data.hadith
+      hadith: parseHadith(data.hadith)
     };
   } catch (error) {
     console.error('Unexpected error in getLatestInspiration:', error);
@@ -111,7 +147,7 @@ async function saveInspiration(inspiration: InspirationData): Promise<void> {
       quran_english: inspiration.quranVerse.english || '',
       quran_surah: inspiration.quranVerse.surah || '',
       quran_ayah: inspiration.quranVerse.ayah || '',
-      hadith: inspiration.hadith || ''
+      hadith: typeof inspiration.hadith === 'string' ? inspiration.hadith : ''
     });
 
   if (error) {
@@ -121,7 +157,7 @@ async function saveInspiration(inspiration: InspirationData): Promise<void> {
 }
 
 async function isContentUnique(inspiration: InspirationData): Promise<boolean> {
-  if (!inspiration || !inspiration.quranVerse || !inspiration.quranVerse.ayah) {
+  if (!inspiration || !inspiration.quranVerse || !inspiration.hadith) {
     console.error('Invalid inspiration data:', JSON.stringify(inspiration, null, 2));
     return false;
   }
@@ -150,17 +186,18 @@ async function isContentUnique(inspiration: InspirationData): Promise<boolean> {
     return false;
   }
 }
+
 export default function DailyInspiration() {
   const [inspiration, setInspiration] = useState<InspirationData>({
     quranVerse: { arabic: '', english: '', surah: '', ayah: '' },
     hadith: ''
   });
   const [loading, setLoading] = useState(true);
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [email, setEmail] = useState('')
-  const [smsOptIn, setSmsOptIn] = useState(false)
-  const [emailOptIn, setEmailOptIn] = useState(false)
-  const [showShareOptions, setShowShareOptions] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [smsOptIn, setSmsOptIn] = useState(false);
+  const [emailOptIn, setEmailOptIn] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   useEffect(() => {
     const loadInspiration = async () => {
@@ -204,20 +241,11 @@ export default function DailyInspiration() {
               todaysInspiration = newInspiration;
             } catch (saveError) {
               console.error('Error saving new inspiration:', saveError);
-              // If we can't save, we'll still use the generated inspiration for today
               todaysInspiration = newInspiration;
             }
           } else {
             console.error("Failed to generate unique inspiration after multiple attempts");
-            todaysInspiration = {
-              quranVerse: {
-                arabic: 'Default Arabic verse',
-                english: 'Default English translation',
-                surah: 'Default Surah',
-                ayah: 'Default Ayah'
-              },
-              hadith: 'Default Hadith'
-            };
+            return;
           }
         } else {
           console.log('Inspiration for today found in the database.');
@@ -227,10 +255,6 @@ export default function DailyInspiration() {
         setInspiration(todaysInspiration);
       } catch (error) {
         console.error("Failed to fetch daily inspiration:", error);
-        setInspiration({
-          quranVerse: { arabic: 'Error', english: 'Failed to load inspiration', surah: '', ayah: '' },
-          hadith: 'Please try again later'
-        });
       } finally {
         setLoading(false);
       }
@@ -260,16 +284,14 @@ export default function DailyInspiration() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Here you would typically send this data to your backend
     console.log({ phoneNumber, email, smsOptIn, emailOptIn })
-    // Reset form after submission
     setPhoneNumber('')
     setEmail('')
     setSmsOptIn(false)
     setEmailOptIn(false)
   }
 
-  const shareText = `https://dualink.vercel.app/daily-inspiration
+  const shareText = `Daily Islamic Inspiration
 
 Quran Verse:
 ${inspiration.quranVerse.english}
@@ -282,7 +304,7 @@ ${inspiration.hadith}`
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Daily Inspiration',
+          title: 'Daily Islamic Inspiration',
           text: shareText,
           url: 'https://dualink.vercel.app/daily-inspiration',
         })
@@ -291,6 +313,24 @@ ${inspiration.hadith}`
       }
     } else {
       setShowShareOptions(!showShareOptions)
+    }
+  }
+
+  function parseHadith(hadithContent: string | null | undefined): string {
+    if (!hadithContent) return '';
+    
+    try {
+      // If it's a JSON string of an empty object, return empty string
+      if (hadithContent === '{}') return '';
+      
+      // If it's a JSON string, try to parse it
+      const parsed = JSON.parse(hadithContent);
+      if (typeof parsed === 'object' && !parsed.text) return '';
+      if (typeof parsed === 'string') return parsed;
+      return hadithContent;
+    } catch (e) {
+      // If it's not JSON, return the original string
+      return hadithContent;
     }
   }
 
@@ -307,7 +347,7 @@ ${inspiration.hadith}`
         url = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`
         break
       case 'linkedin':
-        url = `https://www.linkedin.com/shareArticle?mini=true&url=${currentUrl}&title=Daily Inspiration&summary=${encodedText}`
+        url = `https://www.linkedin.com/shareArticle?mini=true&url=${currentUrl}&title=Daily Islamic Inspiration&summary=${encodedText}`
         break
       case 'sms':
         url = `sms:?body=${encodedText}`
@@ -317,11 +357,10 @@ ${inspiration.hadith}`
     window.open(url, '_blank')
   }
 
-
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
-      <div className="container mx-auto px-4 pt-0 pb-8">
+        <div className="container mx-auto px-4 pt-0 pb-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-4">Daily Inspiration</h1>
             <p className="text-lg">
@@ -340,18 +379,32 @@ ${inspiration.hadith}`
                   <BookOpenIcon className="mr-2 h-6 w-6 text-green-600" />
                   Quranic Verse of the Day
                 </h2>
-                <p className="text-2xl mb-4 text-right font-arabic" lang="ar" dir="rtl">{inspiration.quranVerse.arabic}</p>
+                <p className="text-2xl mb-4 text-right font-arabic" lang="ar" dir="rtl">
+                  {inspiration.quranVerse.arabic}
+                </p>
                 <p className="text-lg mb-4">{inspiration.quranVerse.english}</p>
-                <p className="text-sm text-gray-600">Surah {inspiration.quranVerse.surah}, Ayah {inspiration.quranVerse.ayah}</p>
+                <p className="text-sm text-gray-600">
+                  Surah {inspiration.quranVerse.surah}, Ayah {inspiration.quranVerse.ayah}
+                </p>
               </div>
   
-              <div className="bg-white shadow p-4  md:rounded-lg">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <StarIcon className="mr-2 h-6 w-6 text-green-600" />
-                  Hadith of the Day
-                </h2>
-                <p className="text-lg">{inspiration.hadith}</p>
-              </div>
+              <div className="bg-white shadow p-4 md:rounded-lg">
+  <h2 className="text-xl font-semibold mb-4 flex items-center">
+    <StarIcon className="mr-2 h-6 w-6 text-green-600" />
+    Hadith of the Day
+  </h2>
+  {(() => {
+    const { text, source } = parseHadithWithSource(parseHadith(inspiration.hadith));
+    return (
+      <>
+        <p className="text-lg mb-4">{text}</p>
+        {source && (
+          <p className="text-sm text-gray-600">{source}</p>
+        )}
+      </>
+    );
+  })()}
+</div>
             </div>
           )}
   
@@ -359,7 +412,9 @@ ${inspiration.hadith}`
             <h2 className="text-xl font-semibold mb-4">Receive Daily Inspiration</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number (with country code)</label>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone Number (with country code)
+                </label>
                 <input
                   id="phone"
                   type="tel"
@@ -377,10 +432,14 @@ ${inspiration.hadith}`
                   onChange={(e) => setSmsOptIn(e.target.checked)}
                   className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
-                <label htmlFor="sms-opt-in" className="text-sm text-gray-700">Receive daily inspiration via SMS</label>
+                <label htmlFor="sms-opt-in" className="text-sm text-gray-700">
+                  Receive daily inspiration via SMS
+                </label>
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
                 <input
                   id="email"
                   type="email"
@@ -398,9 +457,14 @@ ${inspiration.hadith}`
                   onChange={(e) => setEmailOptIn(e.target.checked)}
                   className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
-                <label htmlFor="email-opt-in" className="text-sm text-gray-700">Receive daily inspiration via Email</label>
+                <label htmlFor="email-opt-in" className="text-sm text-gray-700">
+                  Receive daily inspiration via Email
+                </label>
               </div>
-              <button type="submit" className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <button
+                type="submit"
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
                 Subscribe to Daily Inspiration
               </button>
             </form>
@@ -409,23 +473,39 @@ ${inspiration.hadith}`
           <div className="mt-8 text-center">
             <button 
               onClick={handleShare}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 inline-flex items-center"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 inline-flex items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
               Share Today&apos;s Inspiration <Share2Icon className="ml-2 h-5 w-5" />
             </button>
   
             {showShareOptions && (
               <div className="mt-4 flex justify-center space-x-4">
-                <button onClick={() => handleSocialShare('twitter')} className="text-blue-400 hover:text-blue-600">
+                <button 
+                  onClick={() => handleSocialShare('twitter')} 
+                  className="text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-2"
+                  aria-label="Share on Twitter"
+                >
                   <TwitterIcon size={24} />
                 </button>
-                <button onClick={() => handleSocialShare('facebook')} className="text-blue-600 hover:text-blue-800">
+                <button 
+                  onClick={() => handleSocialShare('facebook')} 
+                  className="text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-2"
+                  aria-label="Share on Facebook"
+                >
                   <FacebookIcon size={24} />
                 </button>
-                <button onClick={() => handleSocialShare('linkedin')} className="text-blue-700 hover:text-blue-900">
+                <button 
+                  onClick={() => handleSocialShare('linkedin')} 
+                  className="text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-2"
+                  aria-label="Share on LinkedIn"
+                >
                   <LinkedinIcon size={24} />
                 </button>
-                <button onClick={() => handleSocialShare('sms')} className="text-green-600 hover:text-green-800">
+                <button 
+                  onClick={() => handleSocialShare('sms')} 
+                  className="text-green-600 hover:text-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full p-2"
+                  aria-label="Share via SMS"
+                >
                   <MessageCircleIcon size={24} />
                 </button>
               </div>
@@ -434,5 +514,5 @@ ${inspiration.hadith}`
         </div>
       </main>
     </div>
-  )
+  );
 }

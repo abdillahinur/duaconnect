@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@google-cloud/aiplatform": "^3.29.0",
     "@heroicons/react": "^2.1.5",
     "@sendgrid/mail": "^8.1.3",
